@@ -284,6 +284,20 @@ public:
      */
     bool auto_flash_line_3_;
 
+    float hue_red_;
+    float hue_yellow_;
+    float hue_green_;
+    float hue_cyan_;
+    float hue_blue_;
+    float hue_magenta_;
+
+    float saturation_red_;
+    float saturation_yellow_;
+    float saturation_green_;
+    float saturation_cyan_;
+    float saturation_blue_;
+    float saturation_magenta_;
+
 protected:
     /**
      * Validates the parameter set found on the ros parameter server.

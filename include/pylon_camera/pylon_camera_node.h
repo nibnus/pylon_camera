@@ -176,6 +176,11 @@ protected:
      */
     bool setExposure(const float& target_exposure, float& reached_exposure);
 
+
+    bool setAutoWhiteBalance();
+
+    bool getWhiteBalanceInfo();
+
     /**
      * Service callback for setting the exposure
      * @param req request

@@ -55,6 +55,8 @@ struct GigECameraTrait
     typedef Basler_GigECamera::LineSelectorEnums LineSelectorEnums;
     typedef Basler_GigECamera::LineModeEnums LineModeEnums;
     typedef Basler_GigECamera::LineSourceEnums LineSourceEnums;
+    typedef Basler_GigECameraParams::BalanceWhiteAutoEnums BalanceWhiteAutoEnums;
+    typedef Basler_GigECameraParams::BalanceRatioSelectorEnums BalanceRatioSelectorEnums;
 
     static inline AutoTargetBrightnessValueType convertBrightness(const int& value)
     {
@@ -457,6 +459,18 @@ std::string PylonGigECamera::typeName() const
     return "GigE";
 }
 
+template <>
+bool PylonGigECamera::setAwb(const PylonCameraParameter& parameters){
+    
+}
+
+template <>
+bool PylonGigECamera::getAwbInfo() {
+    
+}
+
 }  // namespace pylon_camera
+
+
 
 #endif  // PYLON_CAMERA_INTERNAL_GIGE_H_

@@ -146,6 +146,8 @@ protected:
     typedef typename CameraTraitT::GainType GainType;
     typedef typename CameraTraitT::ShutterModeEnums ShutterModeEnums;
     typedef typename CameraTraitT::UserOutputSelectorEnums UserOutputSelectorEnums;
+    typedef typename CameraTraitT::BalanceWhiteAutoEnums BalanceWhiteAutoEnums;
+    typedef typename CameraTraitT::BalanceRatioSelectorEnums BalanceRatioSelectorEnums;
 
     CBaslerInstantCameraT* cam_;
 
@@ -160,7 +162,8 @@ protected:
     GainType& autoGainUpperLimit();
     GenApi::IFloat& resultingFrameRate();
     AutoTargetBrightnessType& autoTargetBrightness();
-
+    bool setAwb(const PylonCameraParameter& parameters);
+    bool getAwbInfo();
     virtual bool setExtendedBrightness(const int& target_brightness,
                                        const float& current_brightness);
 

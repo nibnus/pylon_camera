@@ -172,6 +172,9 @@ public:
     virtual bool setExposure(const float& target_exposure,
                              float& reached_exposure) = 0;
 
+    virtual bool setAwb(const PylonCameraParameter& parameters) = 0;
+    virtual bool getAwbInfo() = 0;
+
     /**
      * Sets autoflash active for the specified lines
      * @param flash_on_lines map from line e.g. 1 or 2 to a boolean to 

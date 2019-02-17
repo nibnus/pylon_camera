@@ -52,12 +52,18 @@ struct USBCameraTrait
     typedef double AutoTargetBrightnessValueType;
     typedef Basler_UsbCameraParams::ShutterModeEnums ShutterModeEnums;
     typedef Basler_UsbCameraParams::UserOutputSelectorEnums UserOutputSelectorEnums;
+    typedef Basler_UsbCameraParams::BalanceWhiteAutoEnums BalanceWhiteAutoEnums;
+    typedef Basler_UsbCameraParams::BalanceRatioSelectorEnums BalanceRatioSelectorEnums;
+    typedef Basler_UsbCameraParams::AutoFunctionROISelectorEnums AutoFunctionROISelectorEnums;
+    typedef Basler_UsbCameraParams::LightSourcePresetEnums LightSourcePresetEnums;
+
 
     static inline AutoTargetBrightnessValueType convertBrightness(const int& value)
     {
         return value / 255.0;
     }
 };
+    typedef Basler_UsbCameraParams::ColorAdjustmentSelectorEnums ColorAdjustmentSelectorEnums;
 
 typedef PylonCameraImpl<USBCameraTrait> PylonUSBCamera;
 
@@ -143,6 +149,14 @@ bool PylonUSBCamera::setupSequencer(const std::vector<float>& exposure_times,
         {
             ROS_ERROR("Sequencer Mode not writable");
         }
+
+        if (GenApi::IsWritable(cam_->BalanceWhiteAuto)) {
+            ROS_INFO("Can do white balance auto");
+        }
+        else 
+        {
+            ROS_ERROR("White balance Mode not writable");
+        }         
 
         cam_->SequencerConfigurationMode.SetValue(Basler_UsbCameraParams::SequencerConfigurationMode_On);
 
@@ -339,6 +353,113 @@ std::string PylonUSBCamera::typeName() const
     return "USB";
 }
 
+
+template <>
+bool PylonUSBCamera::setAwb(const PylonCameraParameter& parameters){
+
+    try{
+        //cam_->ReverseX.SetValue(true);
+        //cam_->ReverseY.SetValue(true);
+
+        if (GenApi::IsWritable(cam_->BalanceWhiteAuto)) {
+            ROS_INFO("Do white balance auto");
+
+            //cam_->LightSourcePreset.SetValue(USBCameraTrait::LightSourcePresetEnums::LightSourcePreset_Off);
+            //cam_->LightSourcePreset.SetValue(USBCameraTrait::LightSourcePresetEnums::LightSourcePreset_Daylight5000K);
+            //cam_->LightSourcePreset.SetValue(USBCameraTrait::LightSourcePresetEnums::LightSourcePreset_Daylight6500K);
+            //cam_->LightSourcePreset.SetValue(USBCameraTrait::LightSourcePresetEnums::LightSourcePreset_Tungsten2800K);
+
+            cam_->ColorAdjustmentSelector.SetValue(ColorAdjustmentSelectorEnums::ColorAdjustmentSelector_Red);
+            cam_->ColorAdjustmentHue.SetValue(parameters.hue_red_);//default is 0 (-4.0 to +3.96875)
+            cam_->ColorAdjustmentSaturation.SetValue(parameters.saturation_red_);//default is 1 (0.0 to +1.99219)
+
+            cam_->ColorAdjustmentSelector.SetValue(ColorAdjustmentSelectorEnums::ColorAdjustmentSelector_Yellow);
+            cam_->ColorAdjustmentHue.SetValue(parameters.hue_yellow_);//default is 0 (-4.0 to +3.96875)
+            cam_->ColorAdjustmentSaturation.SetValue(parameters.saturation_yellow_);//default is 1 (0.0 to +1.99219)
+
+            cam_->ColorAdjustmentSelector.SetValue(ColorAdjustmentSelectorEnums::ColorAdjustmentSelector_Green);
+            cam_->ColorAdjustmentHue.SetValue(parameters.hue_green_);//default is 0 (-4.0 to +3.96875)
+            cam_->ColorAdjustmentSaturation.SetValue(parameters.saturation_green_);//default is 1 (0.0 to +1.99219)
+
+            cam_->ColorAdjustmentSelector.SetValue(ColorAdjustmentSelectorEnums::ColorAdjustmentSelector_Cyan);
+            cam_->ColorAdjustmentHue.SetValue(parameters.hue_cyan_);//default is 0 (-4.0 to +3.96875)
+            cam_->ColorAdjustmentSaturation.SetValue(parameters.saturation_cyan_);//default is 1 (0.0 to +1.99219)
+
+            cam_->ColorAdjustmentSelector.SetValue(ColorAdjustmentSelectorEnums::ColorAdjustmentSelector_Blue);
+            cam_->ColorAdjustmentHue.SetValue(parameters.hue_blue_);//default is 0 (-4.0 to +3.96875)
+            cam_->ColorAdjustmentSaturation.SetValue(parameters.saturation_blue_);//default is 1 (0.0 to +1.99219)
+
+            cam_->ColorAdjustmentSelector.SetValue(ColorAdjustmentSelectorEnums::ColorAdjustmentSelector_Magenta);
+            cam_->ColorAdjustmentHue.SetValue(parameters.hue_magenta_);//default is 0 (-4.0 to +3.96875)
+            cam_->ColorAdjustmentSaturation.SetValue(parameters.saturation_magenta_);//default is 1 (0.0 to +1.99219)
+
+            // Maximize the grabbed area of interest (Image AOI).
+            if (GenApi::IsWritable(cam_->OffsetX))
+            {
+                cam_->OffsetX.SetValue(cam_->OffsetX.GetMin());
+            }
+            if (GenApi::IsWritable(cam_->OffsetY))
+            {
+                cam_->OffsetY.SetValue(cam_->OffsetY.GetMin());
+            }
+
+            if (GenApi::IsWritable(cam_->Width))
+            {
+                cam_->Width.SetValue(cam_->Width.GetMax());
+            }
+            if (GenApi::IsWritable(cam_->Height))
+            {
+                cam_->Height.SetValue(cam_->Height.GetMax());
+            }
+
+            if(IsAvailable(cam_->AutoFunctionROISelector))
+            {
+            ROS_INFO("IsAvailable........");
+            // Set the Auto Function ROI for white balance.
+            // We want to use ROI2
+            cam_->AutoFunctionROISelector.SetValue(USBCameraTrait::AutoFunctionROISelectorEnums::AutoFunctionROISelector_ROI1);
+            cam_->AutoFunctionROIUseWhiteBalance.SetValue(false);   // ROI 1 is not used for white balance
+            cam_->AutoFunctionROISelector.SetValue(USBCameraTrait::AutoFunctionROISelectorEnums::AutoFunctionROISelector_ROI2);
+            cam_->AutoFunctionROIUseWhiteBalance.SetValue(true);   // ROI 2 is used for white balance
+
+            // Set the Auto Function AOI for white balance statistics.
+            // Currently, AutoFunctionROISelector_ROI2 is predefined to gather
+            // white balance statistics.
+            cam_->AutoFunctionROISelector.SetValue(USBCameraTrait::AutoFunctionROISelectorEnums::AutoFunctionROISelector_ROI2);
+            cam_->AutoFunctionROIOffsetX.SetValue(0);
+            cam_->AutoFunctionROIOffsetY.SetValue(0);
+            //cam_->AutoFunctionROIWidth.SetValue(cam_->Width.GetMax());
+            //cam_->AutoFunctionROIHeight.SetValue(cam_->Height.GetMax());
+            cam_->AutoFunctionROIWidth.SetValue(cam_->AutoFunctionROIWidth.GetMax());
+            cam_->AutoFunctionROIHeight.SetValue(cam_->AutoFunctionROIHeight.GetMax());
+            }
+
+            cam_->BalanceWhiteAuto.SetValue(BalanceWhiteAutoEnums::BalanceWhiteAuto_Continuous);
+            //cam_->BalanceWhiteAuto.SetValue(BalanceWhiteAutoEnums::BalanceWhiteAuto_Once);
+        }
+        else
+        {   
+            ROS_ERROR("White balance Mode not writable");
+        }
+    }
+    catch ( const GenICam::GenericException &e )
+    {
+        ROS_ERROR_STREAM("An exception while Awb "<< e.GetDescription());
+        return false;
+    }
+}
+
+template <>
+bool PylonUSBCamera::getAwbInfo() {
+    cam_->BalanceRatioSelector.SetValue(BalanceRatioSelectorEnums::BalanceRatioSelector_Red);
+    ROS_INFO_STREAM(" Awb R = " << cam_->BalanceRatio.GetValue() << "   ");
+    cam_->BalanceRatioSelector.SetValue(BalanceRatioSelectorEnums::BalanceRatioSelector_Green);
+    ROS_INFO_STREAM(" Awb G = " << cam_->BalanceRatio.GetValue() << "   ");
+    cam_->BalanceRatioSelector.SetValue(BalanceRatioSelectorEnums::BalanceRatioSelector_Blue);
+    ROS_INFO_STREAM(" Awb B = " << cam_->BalanceRatio.GetValue() << "   ");
+}
+
 }  // namespace pylon_camera
+
 
 #endif  // PYLON_CAMERA_INTERNAL_USB_H_

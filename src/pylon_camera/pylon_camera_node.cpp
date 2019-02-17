@@ -315,6 +315,8 @@ bool PylonCameraNode::startGrabbing()
             << "be adapted, so that the binning_y value in this msg remains 1");
     }
 
+    setAutoWhiteBalance();
+
     if ( pylon_camera_parameter_set_.exposure_given_ )
     {
         float reached_exposure;
@@ -482,6 +484,7 @@ void PylonCameraNode::spin()
         init();
         return;
     }
+
     // images were published if subscribers are available or if someone calls
     // the GrabImages Action
     if ( !isSleeping() && (img_raw_pub_.getNumSubscribers() || getNumSubscribersRect() ) )
@@ -519,6 +522,12 @@ void PylonCameraNode::spin()
             img_rect_pub_->publish(*cv_bridge_img_rect_);
         }
     }
+#if 0
+    static int count = 0;
+    if (count++%200==0) {
+        getWhiteBalanceInfo();
+    }
+#endif
 }
 
 bool PylonCameraNode::grabImage()
@@ -1059,6 +1068,21 @@ bool PylonCameraNode::setBinningCallback(camera_control_msgs::SetBinning::Reques
     res.success = success_x && success_y;
     return true;
 }
+
+bool PylonCameraNode::setAutoWhiteBalance() {
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    ROS_INFO("--------------------setAutoWhiteBalance------------------!");
+    if ( !pylon_camera_->isReady() ) {
+        ROS_WARN("Error in setAutoWhiteBalance(): pylon_camera_ is not ready!");
+        return false;
+    }
+    pylon_camera_->setAwb(pylon_camera_parameter_set_);
+}
+
+bool PylonCameraNode::getWhiteBalanceInfo() {
+    pylon_camera_->getAwbInfo();
+}
+
 
 bool PylonCameraNode::setExposure(const float& target_exposure,
                                   float& reached_exposure)

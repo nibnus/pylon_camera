@@ -625,6 +625,7 @@ bool PylonCameraImpl<CameraTraitT>::setExposure(const float& target_exposure,
 {
     try
     {
+
         cam_->ExposureAuto.SetValue(ExposureAutoEnums::ExposureAuto_Off);
 
         float exposure_to_set = target_exposure;
@@ -651,6 +652,7 @@ bool PylonCameraImpl<CameraTraitT>::setExposure(const float& target_exposure,
             // is greater then the exposure step in ms
             return false;
         }
+        //*/
     }
     catch ( const GenICam::GenericException &e )
     {

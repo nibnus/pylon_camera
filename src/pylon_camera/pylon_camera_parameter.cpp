@@ -244,6 +244,21 @@ void PylonCameraParameter::readFromRosParameterServer(const ros::NodeHandle& nh)
     nh.param<bool>("auto_flash_line_3", auto_flash_line_3_, true);
 
     ROS_WARN("Autoflash: %i, line2: %i , line3: %i ", auto_flash_, auto_flash_line_2_, auto_flash_line_3_);
+
+    nh.param<float>("hue/red", hue_red_, 0.);
+    nh.param<float>("hue/yellow", hue_yellow_, 0.);
+    nh.param<float>("hue/green", hue_green_, 0.);
+    nh.param<float>("hue/cyan", hue_cyan_, 0.);
+    nh.param<float>("hue/blue", hue_blue_, 0.);
+    nh.param<float>("hue/magenta", hue_magenta_, 0.);
+
+    nh.param<float>("saturation/red", saturation_red_, 1.);
+    nh.param<float>("saturation/yellow", saturation_yellow_, 1.);
+    nh.param<float>("saturation/green", saturation_green_, 1.);
+    nh.param<float>("saturation/cyan", saturation_cyan_, 1.);
+    nh.param<float>("saturation/blue", saturation_blue_, 1.);
+    nh.param<float>("saturation/magenta", saturation_magenta_, 1.);
+
     validateParameterSet(nh);
     return;
 }
